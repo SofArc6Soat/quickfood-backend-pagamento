@@ -17,12 +17,6 @@ namespace UseCases
                 return false;
             }
 
-            //if (!pedido.EfetuarCheckout())
-            //{
-            //    Notificar("Não foi possível realizar o checkout do pedido.");
-            //    return false;
-            //}
-
             var pagamentoExistente = pagamentoGateway.ObterPagamentoPorPedido(pedidoId, cancellationToken);
 
             if (pagamentoExistente is not null)
@@ -65,8 +59,6 @@ namespace UseCases
             }
 
             pagamento.AlterarStatusPagamentoParaPago();
-
-            //pedido.AlterarStatusParaRecebibo();
 
             return await pedidoGateway.AtualizarPedidoAsync(pedido, cancellationToken) && await pagamentoGateway.NotificarPagamentoAsync(pagamento, cancellationToken);
         }

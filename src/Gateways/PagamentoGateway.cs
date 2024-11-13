@@ -1,12 +1,14 @@
-﻿using Domain.Entities;
+﻿using Core.Infra.MessageBroker;
+using Domain.Entities;
 using Domain.ValueObjects;
+using Gateways.Dtos.Events;
 using Infra.Dto;
 using Infra.Repositories;
 using System.Security.Cryptography;
 
 namespace Gateways
 {
-    public class PagamentoGateway(IPagamentoRepository pagamentoRepository) : IPagamentoGateway
+    public class PagamentoGateway(IPagamentoRepository pagamentoRepository, ISqsService<PedidoPagoEvent> sqsPedidoPago, ISqsService<PedidoPendentePagamentoEvent> sqsPedidoPendentePagamento) : IPagamentoGateway
     {
         public async Task<bool> CadastrarPagamentoAsync(Pagamento pagamento, CancellationToken cancellationToken)
         {
@@ -22,7 +24,7 @@ namespace Gateways
 
             await pagamentoRepository.InsertAsync(pagementoDto, cancellationToken);
 
-            return await pagamentoRepository.UnitOfWork.CommitAsync(cancellationToken);
+            return await pagamentoRepository.UnitOfWork.CommitAsync(cancellationToken) && await sqsPedidoPendentePagamento.SendMessageAsync(GerarPedidoPendentePagamentoEvent(pagementoDto));
         }
 
         public async Task<bool> NotificarPagamentoAsync(Pagamento pagamento, CancellationToken cancellationToken)
@@ -39,7 +41,7 @@ namespace Gateways
 
             await pagamentoRepository.UpdateAsync(pagementoDto, cancellationToken);
 
-            return await pagamentoRepository.UnitOfWork.CommitAsync(cancellationToken);
+            return await pagamentoRepository.UnitOfWork.CommitAsync(cancellationToken) && await sqsPedidoPago.SendMessageAsync(GerarPedidoPagoEvent(pagementoDto));
         }
 
         public string GerarQrCodePixGatewayPagamento(Pagamento pagamento)
@@ -82,5 +84,17 @@ namespace Gateways
 
             return new Pagamento(pagamentoDto.Id, pagamentoDto.PedidoId, statusPagamento, pagamentoDto.Valor, pagamentoDto.QrCodePix, pagamentoDto.DataPagamento);
         }
+
+        private static PedidoPagoEvent GerarPedidoPagoEvent(PagamentoDb pagamentoDb) => new()
+        {
+            PedidoId = pagamentoDb.PedidoId,
+            Status = pagamentoDb.Status
+        };
+
+        private static PedidoPendentePagamentoEvent GerarPedidoPendentePagamentoEvent(PagamentoDb pagamentoDb) => new()
+        {
+            PedidoId = pagamentoDb.PedidoId,
+            Status = "PendentePagamento"
+        };
     }
 }
