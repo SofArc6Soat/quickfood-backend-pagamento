@@ -17,10 +17,6 @@ namespace Infra.Mappings
             builder.Property(c => c.ValorTotal)
                    .HasColumnType("decimal(18,2)")
                    .HasPrecision(2);
-
-            builder.Property(c => c.Status)
-                   .IsRequired()
-                   .HasColumnType("varchar(20)");
         }
     }
 }
