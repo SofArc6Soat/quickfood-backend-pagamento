@@ -13,9 +13,17 @@ namespace Api.Controllers
         [HttpGet("{pedidoId:guid}")]
         public async Task<IActionResult> ObterPagamentoPorPedido([FromRoute] Guid pedidoId, CancellationToken cancellationToken)
         {
-            var result = await pagamentoController.ObterPagamentoPorPedidoAsync(pedidoId, cancellationToken);
-
-            return CustomResponseGet(result);
+            try
+            {
+                var result = await pagamentoController.ObterPagamentoPorPedidoAsync(pedidoId, cancellationToken);
+                return string.IsNullOrEmpty(result)
+                    ? NotFound(new { Success = false, Errors = new[] { "Pagamento não encontrado" } })
+                    : CustomResponseGet(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Success = false, Errors = new[] { ex.Message } });
+            }
         }
 
         [AllowAnonymous]
@@ -27,9 +35,17 @@ namespace Api.Controllers
                 return ErrorBadRequestModelState(ModelState);
             }
 
-            var result = await pagamentoController.EfetuarCheckoutAsync(pedidoId, cancellationToken);
-
-            return CustomResponsePutPatch(pedidoId, result);
+            try
+            {
+                var result = await pagamentoController.EfetuarCheckoutAsync(pedidoId, cancellationToken);
+                return !result
+                    ? BadRequest(new { Success = false, Errors = new[] { "Erro ao efetuar checkout" } })
+                    : CustomResponsePutPatch(pedidoId, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Success = false, Errors = new[] { ex.Message } });
+            }
         }
 
         // WebHook
@@ -42,9 +58,17 @@ namespace Api.Controllers
                 return ErrorBadRequestModelState(ModelState);
             }
 
-            var result = await pagamentoController.NotificarPagamentoAsync(pedidoId, cancellationToken);
-
-            return CustomResponsePutPatch(pedidoId, result);
+            try
+            {
+                var result = await pagamentoController.NotificarPagamentoAsync(pedidoId, cancellationToken);
+                return !result
+                    ? BadRequest(new { Success = false, Errors = new[] { "Erro ao notificar pagamento" } })
+                    : CustomResponsePutPatch(pedidoId, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Success = false, Errors = new[] { ex.Message } });
+            }
         }
     }
 }
