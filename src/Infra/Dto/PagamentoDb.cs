@@ -1,17 +1,26 @@
-﻿using Core.Domain.Entities;
+﻿using Amazon.DynamoDBv2.DataModel;
 
 namespace Infra.Dto
 {
-    public class PagamentoDb : Entity
+    [DynamoDBTable("Pagamentos")]
+    public class PagamentoDb
     {
-        public Guid PedidoId { get; set; }
-        public string Status { get; set; } = string.Empty;
-        public decimal Valor { get; set; }
-        public string? QrCodePix { get; set; }
-        public DateTime DataPagamento { get; set; }
+        [DynamoDBHashKey]
+        public Guid Id { get; set; }
 
-#pragma warning disable CS8618
-        public PedidoDb Pedido { get; set; }
-#pragma warning restore CS8618
+        [DynamoDBProperty]
+        public Guid PedidoId { get; set; }
+
+        [DynamoDBProperty]
+        public string Status { get; set; } = string.Empty;
+
+        [DynamoDBProperty]
+        public decimal Valor { get; set; }
+
+        [DynamoDBProperty]
+        public string? QrCodePix { get; set; }
+
+        [DynamoDBProperty]
+        public DateTime DataPagamento { get; set; }
     }
 }
