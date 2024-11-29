@@ -17,7 +17,7 @@ namespace UseCases
                 return false;
             }
 
-            var pagamentoExistente = pagamentoGateway.ObterPagamentoPorPedido(pedidoId, cancellationToken);
+            var pagamentoExistente = await pagamentoGateway.ObterPagamentoPorPedidoAsync(pedidoId, cancellationToken);
 
             if (pagamentoExistente is not null)
             {
@@ -42,7 +42,7 @@ namespace UseCases
 
         public async Task<bool> NotificarPagamentoAsync(Guid pedidoId, CancellationToken cancellationToken)
         {
-            var pagamento = pagamentoGateway.ObterPagamentoPorPedido(pedidoId, cancellationToken);
+            var pagamento = await pagamentoGateway.ObterPagamentoPorPedidoAsync(pedidoId, cancellationToken);
 
             if (pagamento is null)
             {
@@ -63,7 +63,7 @@ namespace UseCases
             return await pedidoGateway.AtualizarPedidoAsync(pedido, cancellationToken) && await pagamentoGateway.NotificarPagamentoAsync(pagamento, cancellationToken);
         }
 
-        public async Task<string> ObterPagamentoPorPedidoAsync(Guid pedidoId, CancellationToken cancellationToken) =>
-            await pagamentoGateway.ObterPagamentoPorPedidoAsync(pedidoId, cancellationToken);
+        public async Task<List<Pagamento>?> ObterPagamentoPorPedidoAsync(Guid pedidoId, CancellationToken cancellationToken) =>
+            await pagamentoGateway.ObterPagamentosPorPedidoAsync(pedidoId, cancellationToken);
     }
 }

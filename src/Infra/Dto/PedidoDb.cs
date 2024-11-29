@@ -1,15 +1,20 @@
-﻿using Core.Domain.Entities;
+﻿using Amazon.DynamoDBv2.DataModel;
 
 namespace Infra.Dto
 {
-    public class PedidoDb : Entity
+    [DynamoDBTable("Pedidos")]
+    public class PedidoDb
     {
-        public int NumeroPedido { get; set; }
-        public decimal ValorTotal { get; set; }
-        public DateTime DataPedido { get; set; }
+        [DynamoDBHashKey]
+        public Guid Id { get; set; }
 
-        public PedidoDb()
-        {
-        }
+        [DynamoDBProperty]
+        public int NumeroPedido { get; set; }
+
+        [DynamoDBProperty]
+        public decimal ValorTotal { get; set; }
+
+        [DynamoDBProperty]
+        public DateTime DataPedido { get; set; }
     }
 }

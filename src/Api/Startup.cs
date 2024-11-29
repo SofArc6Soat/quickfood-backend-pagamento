@@ -3,7 +3,6 @@ using Controllers.DependencyInjection;
 using Core.WebApi.Configurations;
 using Core.WebApi.DependencyInjection;
 using Gateways.DependencyInjection;
-using Infra.Context;
 using System.Diagnostics.CodeAnalysis;
 using Worker.DependencyInjection;
 using static Gateways.DependencyInjection.ServiceCollectionExtensions;
@@ -40,8 +39,6 @@ namespace Api
 
             services.AddApiDefautConfig(jwtBearerConfigureOptions);
 
-            services.AddHealthCheckConfig(settings.ConnectionStrings.DefaultConnection);
-
             services.AddControllerDependencyServices();
 
             var queues = new Queues
@@ -50,7 +47,7 @@ namespace Api
                 QueuePedidoPendentePagamentoEvent = settings.AwsSqsSettings.QueuePedidoPendentePagamentoEvent
             };
 
-            services.AddGatewayDependencyServices(settings.ConnectionStrings.DefaultConnection, queues);
+            services.AddGatewayDependencyServices(settings.AwsDynamoDbSettings.ServiceUrl, settings.AwsDynamoDbSettings.AccessKey, settings.AwsDynamoDbSettings.SecretKey, queues);
 
             var workerQueues = new WorkerQueues
             {
@@ -60,11 +57,6 @@ namespace Api
             services.AddWorkerDependencyServices(workerQueues);
         }
 
-        public static void Configure(IApplicationBuilder app, ApplicationDbContext context)
-        {
-            DatabaseMigratorBase.MigrateDatabase(context);
-
-            app.UseApiDefautConfig();
-        }
+        public static void Configure(IApplicationBuilder app) => app.UseApiDefautConfig();
     }
 }

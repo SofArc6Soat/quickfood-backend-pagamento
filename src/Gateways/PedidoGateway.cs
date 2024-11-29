@@ -1,14 +1,14 @@
-﻿using Domain.Entities;
+﻿using Amazon.DynamoDBv2.DataModel;
+using Domain.Entities;
 using Infra.Dto;
-using Infra.Repositories;
 
 namespace Gateways
 {
-    public class PedidoGateway(IPedidoRepository pedidoRepository) : IPedidoGateway
+    public class PedidoGateway(IDynamoDBContext repository) : IPedidoGateway
     {
         public async Task<Pedido?> ObterPedidoAsync(Guid id, CancellationToken cancellationToken)
         {
-            var pedidoDto = await pedidoRepository.FindByIdAsync(id, cancellationToken);
+            var pedidoDto = await repository.LoadAsync<PedidoDb>(id, cancellationToken);
 
             return pedidoDto is null ? null : new Pedido(pedidoDto.Id, pedidoDto.NumeroPedido, pedidoDto.ValorTotal, pedidoDto.DataPedido);
         }
@@ -23,9 +23,9 @@ namespace Gateways
                 DataPedido = pedido.DataPedido
             };
 
-            await pedidoRepository.UpdateAsync(pedidoDto, cancellationToken);
+            await repository.SaveAsync(pedidoDto, cancellationToken);
 
-            return await pedidoRepository.UnitOfWork.CommitAsync(cancellationToken);
+            return true;
         }
     }
 }

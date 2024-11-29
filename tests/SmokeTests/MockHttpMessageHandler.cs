@@ -29,9 +29,7 @@ public static class MockHttpMessageHandler
         return handlerMock;
     }
 
-    public static void SetupRequest(this Mock<HttpMessageHandler> handlerMock, HttpMethod method, string requestUri, HttpStatusCode statusCode, string content)
-    {
-        handlerMock
+    public static void SetupRequest(this Mock<HttpMessageHandler> handlerMock, HttpMethod method, string requestUri, HttpStatusCode statusCode, string content) => handlerMock
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
@@ -49,5 +47,4 @@ public static class MockHttpMessageHandler
                 }
             })
             .Verifiable();
-    }
 }
