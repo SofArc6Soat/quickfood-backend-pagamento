@@ -26,9 +26,17 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore src/Api/Api.csproj
 
+      # Install missing package
+      - name: Install AWSSDK.Core
+        run: dotnet add package AWSSDK.Core --version 3.7.400.58
+
       # Run unit tests
       - name: Run all tests
         run: dotnet test QuickFood-Pagamento.sln --configuration Release --collect:"XPlat Code Coverage"
+
+      # Check for nullability warnings
+      - name: Check for nullability warnings
+        run: dotnet build --configuration Release /warnaserror:nullable
 
   code_analysis:
     runs-on: ubuntu-latest
