@@ -37,7 +37,7 @@ jobs:
         run: dotnet add src/Infra/Infra.csproj package AWSSDK.Core --version 3.7.400.58
 
       - name: Install AWSSDK.Core in Core.Infra.MessageBroker project
-        run: dotnet add src\BuildingBlocks\Core.Infra.MessageBroker\Core.Infra.MessageBroker.csproj package AWSSDK.Core --version 3.7.400.58
+        run: dotnet add src/BuildingBlocks/Core.Infra.MessageBroker/Core.Infra.MessageBroker.csproj package AWSSDK.Core --version 3.7.400.58
 
       # Run unit tests
       - name: Run all tests
