@@ -6,11 +6,11 @@ namespace Domain.Tests.Entities
     public class PagamentoTests
     {
         [Fact]
-        public void CriarPagamento_DeveCriarComSucesso()
+        public void Pagamento_Should_SetPropertiesCorrectly_WithMinimalConstructor()
         {
             // Arrange
             var pedidoId = Guid.NewGuid();
-            var valor = 100.00m;
+            var valor = 123.45m;
 
             // Act
             var pagamento = new Pagamento(pedidoId, valor);
@@ -19,14 +19,38 @@ namespace Domain.Tests.Entities
             Assert.Equal(pedidoId, pagamento.PedidoId);
             Assert.Equal(valor, pagamento.Valor);
             Assert.Equal(DateTime.Now.Date, pagamento.DataPagamento.Date);
+            Assert.NotEqual(Guid.Empty, pagamento.Id); // Id should be set to a new Guid
         }
 
         [Fact]
-        public void AtribuirQrCodePix_DeveAtribuirQrCode()
+        public void Pagamento_Should_SetPropertiesCorrectly_WithFullConstructor()
         {
             // Arrange
-            var pagamento = new Pagamento(Guid.NewGuid(), 100.00m);
-            var qrCodePix = "1234567890";
+            var id = Guid.NewGuid();
+            var pedidoId = Guid.NewGuid();
+            var status = StatusPagamento.Pendente;
+            var valor = 123.45m;
+            var qrCodePix = "QRCode123";
+            var dataCriacao = DateTime.UtcNow;
+
+            // Act
+            var pagamento = new Pagamento(id, pedidoId, status, valor, qrCodePix, dataCriacao);
+
+            // Assert
+            Assert.Equal(id, pagamento.Id);
+            Assert.Equal(pedidoId, pagamento.PedidoId);
+            Assert.Equal(status, pagamento.Status);
+            Assert.Equal(valor, pagamento.Valor);
+            Assert.Equal(qrCodePix, pagamento.QrCodePix);
+            Assert.Equal(dataCriacao, pagamento.DataPagamento);
+        }
+
+        [Fact]
+        public void AtribuirQrCodePix_Should_SetQrCodePix()
+        {
+            // Arrange
+            var pagamento = new Pagamento(Guid.NewGuid(), 123.45m);
+            var qrCodePix = "QRCode123";
 
             // Act
             pagamento.AtribuirQrCodePix(qrCodePix);
@@ -36,17 +60,25 @@ namespace Domain.Tests.Entities
         }
 
         [Fact]
-        public void AlterarStatusPagamento_DeveAlterarStatus()
+        public void AlterarStatusPagamentoParaPendente_Should_SetStatusToPendente()
         {
             // Arrange
-            var pagamento = new Pagamento(Guid.NewGuid(), 100.00m);
+            var pagamento = new Pagamento(Guid.NewGuid(), 123.45m);
 
             // Act
             pagamento.AlterarStatusPagamentoParaPendente();
 
             // Assert
             Assert.Equal(StatusPagamento.Pendente, pagamento.Status);
+        }
 
+        [Fact]
+        public void AlterarStatusPagamentoParaPago_Should_SetStatusToPago()
+        {
+            // Arrange
+            var pagamento = new Pagamento(Guid.NewGuid(), 123.45m);
+
+            // Act
             pagamento.AlterarStatusPagamentoParaPago();
 
             // Assert

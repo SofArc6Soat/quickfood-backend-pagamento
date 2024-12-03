@@ -10,6 +10,16 @@ namespace Domain.Entities
 
         public Pedido(Guid id, int numeroPedido, decimal valorTotal, DateTime dataCricacao)
         {
+            if (numeroPedido <= 0)
+            {
+                throw new ArgumentException("NumeroPedido deve ser maior que zero.", nameof(numeroPedido));
+            }
+
+            if (valorTotal <= 0)
+            {
+                throw new ArgumentException("ValorTotal deve ser maior que zero.", nameof(valorTotal));
+            }
+
             Id = id;
             NumeroPedido = numeroPedido;
             ValorTotal = valorTotal;

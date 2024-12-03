@@ -6,6 +6,11 @@
 
         public static bool Validar(string cpf)
         {
+            if (string.IsNullOrWhiteSpace(cpf))
+            {
+                return false;
+            }
+
             var cpfNumeros = RemoverCaracteresEspeciais(cpf);
 
             return TamanhoValido(cpfNumeros) &&
@@ -23,10 +28,10 @@
         {
             var invalidNumbers = new[]
             {
-            "00000000000", "11111111111", "22222222222", "33333333333",
-            "44444444444", "55555555555", "66666666666", "77777777777",
-            "88888888888", "99999999999"
-        };
+                    "00000000000", "11111111111", "22222222222", "33333333333",
+                    "44444444444", "55555555555", "66666666666", "77777777777",
+                    "88888888888", "99999999999"
+                };
 
             return invalidNumbers.Contains(cpf);
         }
@@ -45,12 +50,18 @@
         }
     }
 
-    internal class DigitoVerificador(string numero)
+    internal class DigitoVerificador
     {
         private const int Modulo = 11;
-        private readonly List<int> _multiplicadores = [2, 3, 4, 5, 6, 7, 8, 9];
-        private readonly Dictionary<int, string> _substituicoes = [];
+        private readonly List<int> _multiplicadores = new() { 2, 3, 4, 5, 6, 7, 8, 9 };
+        private readonly Dictionary<int, string> _substituicoes = new();
         private readonly bool _complementarDoModulo = true;
+        private string _numero;
+
+        public DigitoVerificador(string numero)
+        {
+            _numero = numero;
+        }
 
         public DigitoVerificador ComMultiplicadoresDeAte(int primeiroMultiplicador, int ultimoMultiplicador)
         {
@@ -75,16 +86,16 @@
         }
 
         public void AddDigito(string digito) =>
-            numero = string.Concat(numero, digito);
+            _numero = string.Concat(_numero, digito);
 
-        public string CalculaDigito() => (numero.Length <= 0) ? "" : GetDigitSum();
+        public string CalculaDigito() => (_numero.Length <= 0) ? "" : GetDigitSum();
 
         private string GetDigitSum()
         {
             var soma = 0;
-            for (int i = numero.Length - 1, m = 0; i >= 0; i--)
+            for (int i = _numero.Length - 1, m = 0; i >= 0; i--)
             {
-                var produto = (int)char.GetNumericValue(numero[i]) * _multiplicadores[m];
+                var produto = (int)char.GetNumericValue(_numero[i]) * _multiplicadores[m];
                 soma += produto;
 
                 if (++m >= _multiplicadores.Count)
