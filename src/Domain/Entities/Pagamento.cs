@@ -13,6 +13,7 @@ namespace Domain.Entities
 
         public Pagamento(Guid pedidoId, decimal valor)
         {
+            Id = Guid.NewGuid();
             PedidoId = pedidoId;
             Valor = valor;
             DataPagamento = DateTime.Now;

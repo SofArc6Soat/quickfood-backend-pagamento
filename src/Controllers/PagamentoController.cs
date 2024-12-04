@@ -1,4 +1,5 @@
-﻿using UseCases;
+﻿using Domain.Entities;
+using UseCases;
 
 namespace Controllers
 {
@@ -10,7 +11,7 @@ namespace Controllers
         public async Task<bool> NotificarPagamentoAsync(Guid pedidoId, CancellationToken cancellationToken) =>
             await pagamentoUseCase.NotificarPagamentoAsync(pedidoId, cancellationToken);
 
-        public async Task<string> ObterPagamentoPorPedidoAsync(Guid pedidoId, CancellationToken cancellationToken) =>
+        public async Task<List<Pagamento>?> ObterPagamentoPorPedidoAsync(Guid pedidoId, CancellationToken cancellationToken) =>
             await pagamentoUseCase.ObterPagamentoPorPedidoAsync(pedidoId, cancellationToken);
     }
 }

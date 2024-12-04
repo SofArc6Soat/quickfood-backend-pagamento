@@ -19,7 +19,7 @@ namespace Api.Configuration
     [ExcludeFromCodeCoverage]
     public record Settings
     {
-        public ConnectionStrings ConnectionStrings { get; set; } = new ConnectionStrings();
+        public AwsDynamoDbSettings AwsDynamoDbSettings { get; set; } = new AwsDynamoDbSettings();
 
         public CognitoSettings CognitoSettings { get; set; } = new CognitoSettings();
 
@@ -27,9 +27,11 @@ namespace Api.Configuration
     }
 
     [ExcludeFromCodeCoverage]
-    public record ConnectionStrings
+    public record AwsDynamoDbSettings
     {
-        public string DefaultConnection { get; set; } = string.Empty;
+        public string ServiceUrl { get; set; } = string.Empty;
+        public string AccessKey { get; set; } = string.Empty;
+        public string SecretKey { get; set; } = string.Empty;
     }
 
     [ExcludeFromCodeCoverage]

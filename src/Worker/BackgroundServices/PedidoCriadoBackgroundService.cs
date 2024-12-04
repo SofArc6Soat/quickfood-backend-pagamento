@@ -1,6 +1,6 @@
-﻿using Core.Infra.MessageBroker;
+﻿using Amazon.DynamoDBv2.DataModel;
+using Core.Infra.MessageBroker;
 using Infra.Dto;
-using Infra.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -32,14 +32,13 @@ namespace Worker.BackgroundServices
             if (message is not null)
             {
                 using var scope = serviceScopeFactory.CreateScope();
-                var pedidoRepository = scope.ServiceProvider.GetRequiredService<IPedidoRepository>();
+                var repository = scope.ServiceProvider.GetRequiredService<IDynamoDBContext>();
 
-                var pedidoExistente = await pedidoRepository.FindByIdAsync(message.Id, cancellationToken);
+                var pedidoExistente = await repository.LoadAsync<PedidoDb>(message.Id, cancellationToken);
 
                 if (pedidoExistente is null)
                 {
-                    await pedidoRepository.InsertAsync(ConvertMessageToDb(message), cancellationToken);
-                    await pedidoRepository.UnitOfWork.CommitAsync(cancellationToken);
+                    await repository.SaveAsync(ConvertMessageToDb(message), cancellationToken);
                 }
             }
         }

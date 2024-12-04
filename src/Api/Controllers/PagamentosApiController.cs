@@ -16,7 +16,8 @@ namespace Api.Controllers
             try
             {
                 var result = await pagamentoController.ObterPagamentoPorPedidoAsync(pedidoId, cancellationToken);
-                return string.IsNullOrEmpty(result)
+
+                return result is null
                     ? NotFound(new { Success = false, Errors = new[] { "Pagamento não encontrado" } })
                     : CustomResponseGet(result);
             }
