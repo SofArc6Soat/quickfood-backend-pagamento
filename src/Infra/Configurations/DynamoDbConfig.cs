@@ -8,13 +8,18 @@ namespace Infra.Configurations
 {
     public static class DynamoDbConfig
     {
-        public static void Configure(IServiceCollection services, string serviceUrl, string accessKey, string secretKey)
+        public static void Configure(IServiceCollection services, string serviceUrl, string accessKey, string secretKey, IAmazonDynamoDB dynamoDbClient = null, IDynamoDBContext dynamoDbContext = null)
         {
-            var clientDynamo = ConfigDynamoDb(services, serviceUrl, accessKey, secretKey);
+            var clientDynamo = dynamoDbClient ?? ConfigDynamoDb(serviceUrl, accessKey, secretKey);
+            var context = dynamoDbContext ?? new DynamoDBContext(clientDynamo);
+
+            services.AddSingleton<IAmazonDynamoDB>(clientDynamo);
+            services.AddSingleton<IDynamoDBContext>(context);
+
             CreateTableIfNotExists(clientDynamo).Wait();
         }
 
-        private static AmazonDynamoDBClient ConfigDynamoDb(IServiceCollection services, string serviceUrl, string accessKey, string secretKey)
+        private static AmazonDynamoDBClient ConfigDynamoDb(string serviceUrl, string accessKey, string secretKey)
         {
             var config = new AmazonDynamoDBConfig
             {
@@ -24,21 +29,16 @@ namespace Infra.Configurations
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             var amazonDynamoDbClient = new AmazonDynamoDBClient(credentials, config);
 
-            services.AddSingleton<IAmazonDynamoDB>(amazonDynamoDbClient);
-
-            var context = new DynamoDBContext(amazonDynamoDbClient);
-            services.AddSingleton<IDynamoDBContext>(context);
-
             return amazonDynamoDbClient;
         }
 
-        private static async Task CreateTableIfNotExists(IAmazonDynamoDB client)
+        public static async Task CreateTableIfNotExists(IAmazonDynamoDB client)
         {
-            var listTable = new List<string>()
-            {
-                "Pagamentos",
-                "Pedidos"
-            };
+            var listTable = new List<string>
+                    {
+                        "Pagamentos",
+                        "Pedidos"
+                    };
 
             foreach (var tableName in listTable)
             {
@@ -52,13 +52,13 @@ namespace Infra.Configurations
                     {
                         TableName = tableName,
                         AttributeDefinitions =
-                        [
-                            new("Id", ScalarAttributeType.S)
-                        ],
+                                {
+                                    new AttributeDefinition("Id", ScalarAttributeType.S)
+                                },
                         KeySchema =
-                        [
-                            new("Id", KeyType.HASH)
-                        ],
+                                {
+                                    new KeySchemaElement("Id", KeyType.HASH)
+                                },
                         ProvisionedThroughput = new ProvisionedThroughput
                         {
                             ReadCapacityUnits = 5,
